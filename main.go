@@ -28,7 +28,7 @@ func main() {
 	db.AutoMigrate(&Record{})
 
 	c := cron.New()
-	c.AddFunc("@every 10s", addIPRecord)
+	c.AddFunc("@every 10m", addIPRecord)
 	c.Start()
 	select {}
 
