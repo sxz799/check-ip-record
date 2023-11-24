@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"flag"
 )
 
 type Record struct {
@@ -20,11 +21,16 @@ type Record struct {
 var db *gorm.DB
 
 func main() {
-	// Connect to the SQLite database using GORM postgres://render_w6mb_user:5aj1sSgABmaoAPRTdoB1G605n9ePQzhI@dpg-cj3hstdiuie55pl5816g-a/render_w6mb
-	dsn := "postgres://render_w6mb_user:5aj1sSgABmaoAPRTdoB1G605n9ePQzhI@dpg-cj3hstdiuie55pl5816g-a.singapore-postgres.render.com/render_w6mb"
-	db, _ = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-	// Auto-migrate the User model to create the table in the database
+	dsn := flag.String("dsn", "", "指定dsn")
+	flag.Parse()
+	log.Println("dsn: ",*dsn)
+	db, err := gorm.Open(postgres.Open(*dsn), &gorm.Config{})
+	if err!=nil{
+		fmt.Println("数据库连接失败!")
+		return
+	}
+
 	db.AutoMigrate(&Record{})
 
 	c := cron.New()
@@ -51,7 +57,7 @@ func addIPRecord() {
 }
 
 func getLocalIPByInternet() (string, error) {
-	resp, err := http.Get("https://api.ipify.org")
+	resp, err := http.Get("https://ip.sb")
 	if err != nil {
 		return "", err
 	}

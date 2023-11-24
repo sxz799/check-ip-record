@@ -12,7 +12,6 @@ COPY ./ .
 
 # 编译应用程序
 RUN go env -w GO111MODULE=on \
-    && go env -w GOPROXY=https://goproxy.cn,direct \
     && go env \
     && go mod tidy \
     && go build -ldflags="-s -w"  -o app .
@@ -22,6 +21,8 @@ FROM alpine:latest
 
 WORKDIR /home
 
+
+
 RUN apk --no-cache add bash
 
 RUN apk update && apk add tzdata
@@ -29,8 +30,11 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo "Asia/Shanghai" > /etc/timezone
 
 
+ENV DSN "defaultDSN"
+
+
 COPY --from=0 /go/src/github.com/sxz799/checkIPRecord/app ./
 
 
 # 运行应用程序
-CMD ["./app"]
+CMD ./app -dsn $DSN
